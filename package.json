@@ -9,6 +9,7 @@
     "demo": "tsx src/demo.ts",
     "demo:metered": "tsx src/demo-metered.ts",
     "demo:gated": "tsx src/demo-gated.ts",
+    "demo:ocpi": "tsx src/demo-ocpi.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

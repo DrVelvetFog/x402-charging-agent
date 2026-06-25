@@ -57,12 +57,15 @@ COMMON = {
     "decimals": S["decimals"], "kwh": S["kwh"], "network": S["network"],
     "payTo": S["payTo"], "rail": "sui", "scheme": "upto",
 }
-# Phase 3: record the proof-of-personhood evidence in the bound settlement (#2677)
+# Phase 3: personhood evidence (#2677); bridge: the OCPI CDR (network billing truth)
 POR = S.get("por")
+CDR = S.get("cdr")
 if POR:
     COMMON["por"] = {"credId": POR["credId"], "level": POR["level"]}
-REASON = ("verified-human agent metered an EV charge within the authorized ceiling"
-          if POR else "agent metered an EV charge within the authorized ceiling")
+if CDR:
+    COMMON["cdr"] = CDR  # binds the charging network's signed CDR into the receipt
+REASON = "agent settled an OCPI-metered EV charge (CDR-bound)" if CDR else "agent metered an EV charge"
+REASON = ("verified-human " + REASON if POR else REASON) + " within the authorized ceiling"
 STEP0_BLOCK = {**COMMON, "amount": S["actual"], "assertedFrom": "operator-voucher",
                "session": S["sessionId"], "status": "in-progress",
                "voucherSig": S["voucherSig"], "voucherSigner": S["voucherSigner"]}

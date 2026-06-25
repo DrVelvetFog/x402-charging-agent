@@ -107,6 +107,31 @@ the issuer is a clearly-labelled demo issuer (real verify logic). Production = p
 See [WALKTHROUGH.md](WALKTHROUGH.md) for the full explainer (architecture, the
 standards tie-in, what's real vs mocked, and a Q&A).
 
+### Bridge — x402 ↔ OCPI (the charger side, wired to a real network)
+
+```bash
+npm run demo:ocpi
+```
+
+The other demos mock the *vehicle*. This one wires the **charger side** to a real
+charging-network interface: a spec-faithful **OCPI 2.2 CPO** (the standard EV
+networks already use). The bridge drives it with `START_SESSION`, the network
+meters the energy, and settlement runs against the **CDR (Charge Detail Record)** —
+the network's signed billing truth — instead of self-metering:
+
+```
+402 upto terms → ceiling voucher → OCPI START_SESSION → network meters 0→10 kWh
+→ CDR ready (signed meter data) → settle CDR actual (1,000,000) on Sui
+→ on-chain net to station = 1,000,000 (CDR actual) ✓
+→ CDR bound into the receipt (cdrId, cpo, signedDataDigest) · checker 7/7 ✓
+```
+
+This is the path from demo to real users: swapping the mock CPO for a DePIN
+charging network (DeCharge, Starpower, PowerPod) is a **base URL + OCPI
+credentials** change — the x402 / `upto` / receipt machinery is untouched. The
+CDR's signed meter data is bound into the x402 settlement-receipt, so the
+network's own billing record is part of the verifiable artifact.
+
 ## How it maps to real hardware
 
 The `mock-vehicle` speaks the **same HTTP contract as Tesla's
@@ -128,6 +153,9 @@ developer app and an enrolled virtual key — **no change to the payment loop.**
 | `src/demo-metered.ts` | Phase 2 orchestrator (meter → settle actual → emit + check vector) |
 | `src/por-gate.ts` | Phase 3 personhood gate + demo PoR issuer (`verifyPorVc` vendored from por-sdk) |
 | `src/demo-gated.ts` | Phase 3 orchestrator (refuse anon → verify human → metered settle) |
+| `src/ocpi-cpo.ts` | mock OCPI 2.2 charging network (START_SESSION, sessions, CDR + signed meter data) |
+| `src/ocpi-bridge.ts` | x402 ↔ OCPI bridge: drives the CPO, settles the CDR's actual, binds the CDR |
+| `src/demo-ocpi.ts` | bridge orchestrator (network meters → CDR → settle → CDR-bound receipt) |
 | `vectors/` | Python emitter + vendored conformance checker (settlement-receipt binding) |
 | `src/lib.ts` | x402-on-Sui primitives, vendored from `x402-sui-stack` |
 
@@ -142,8 +170,13 @@ developer app and an enrolled virtual key — **no change to the payment loop.**
 - **Phase 3 — done:** proof-of-personhood gate (only a verified human's agent may
   charge, bound to the payer), PoR evidence bound into the receipt, plus
   [WALKTHROUGH.md](WALKTHROUGH.md) (`npm run demo:gated`).
-- **Phase 4 — next:** swap the mock for `tesla-http-proxy` + a real car; optionally
-  point the PoR gate at the live attestor and record a demo video.
+- **Charger-side bridge — done:** x402 ↔ OCPI, settling against a charging
+  network's CDR with the CDR bound into the receipt (`npm run demo:ocpi`). The
+  path to real users: point it at a DePIN charging network (DeCharge, Starpower,
+  PowerPod) via OCPI credentials.
+- **Phase 4 — next:** swap the mock for `tesla-http-proxy` + a real car; pilot the
+  OCPI bridge against a live DePIN charging network; optionally point the PoR gate
+  at the live attestor and record a demo video.
 
 ## Notes
 
