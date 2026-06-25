@@ -1,0 +1,22 @@
+{
+  "name": "x402-charging-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "An EV charging agent that pays for its own charge over x402, settled on Sui. The car speaks Tesla's vehicle-command HTTP contract (mocked in Phase 1); charging only starts once an x402 payment settles through a non-custodial Sui facilitator.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "demo": "tsx src/demo.ts",
+    "demo:metered": "tsx src/demo-metered.ts",
+    "demo:gated": "tsx src/demo-gated.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mysten/sui": "^2.17.0",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}
