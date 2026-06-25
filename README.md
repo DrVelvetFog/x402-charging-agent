@@ -149,7 +149,9 @@ developer app and an enrolled virtual key — **no change to the payment loop.**
 
 Non-custodial throughout (the car holds its own keys; the facilitator never
 custodies funds). Testnet by default — `NETWORK=sui:mainnet` requires
-`CONFIRM_MAINNET=1`. The vendored `lib.ts` follows `x402-sui-stack`'s own
+`CONFIRM_MAINNET=1`. The full gated + metered flow has also been run on **Sui
+mainnet** with real funds (settlement ~0.001 SUI, i.e. a fraction of a cent),
+not just testnet. The vendored `lib.ts` follows `x402-sui-stack`'s own
 invitation to copy its seller/payment helpers. Tesla's `vehicle-command` is an
 independent open-source project; this repo only targets its public HTTP contract
 and is not affiliated with Tesla.
