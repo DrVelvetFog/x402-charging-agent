@@ -132,6 +132,28 @@ credentials** change — the x402 / `upto` / receipt machinery is untouched. The
 CDR's signed meter data is bound into the x402 settlement-receipt, so the
 network's own billing record is part of the verifiable artifact.
 
+### Solana settlement (the DePIN networks' chain)
+
+```bash
+npm run demo:solana
+```
+
+The DePIN charging networks (DeCharge, Starpower) are on **Solana**, so a pilot
+settles there. This proves it end-to-end on **Solana devnet**: a Solana wallet is
+generated and airdrop-funded (free), the OCPI network meters the energy, and the
+CDR's actual is settled with a **real on-chain Solana transaction**, independently
+recomputed from the tx's balance deltas:
+
+```
+OCPI START_SESSION → meter 10 kWh → CDR → settle 1,000,000 on Solana devnet
+→ on-chain net to station = 1,000,000 ✓ (real tx)
+```
+
+Devnet uses SOL (airdrop) for a turnkey, free proof; production settles **USDC
+(SPL)** through an x402 SVM facilitator (the `upto` scheme being standardized with
+the Solana Foundation). The OCPI metering + CDR are identical to the Sui bridge —
+only the settlement rail changes.
+
 ## How it maps to real hardware
 
 The `mock-vehicle` speaks the **same HTTP contract as Tesla's
@@ -156,6 +178,8 @@ developer app and an enrolled virtual key — **no change to the payment loop.**
 | `src/ocpi-cpo.ts` | mock OCPI 2.2 charging network (START_SESSION, sessions, CDR + signed meter data) |
 | `src/ocpi-bridge.ts` | x402 ↔ OCPI bridge: drives the CPO, settles the CDR's actual, binds the CDR |
 | `src/demo-ocpi.ts` | bridge orchestrator (network meters → CDR → settle → CDR-bound receipt) |
+| `src/solana-settle.ts` | Solana devnet settlement rail (wallets, airdrop, settle, recompute) |
+| `src/demo-solana.ts` | Solana proof (OCPI CDR → real Solana devnet settlement) |
 | `vectors/` | Python emitter + vendored conformance checker (settlement-receipt binding) |
 | `src/lib.ts` | x402-on-Sui primitives, vendored from `x402-sui-stack` |
 
