@@ -1,12 +1,28 @@
 # x402 EV Charging Agent
 
 An electric vehicle that **pays for its own charge** — autonomously, with no human
-in the loop. The car's agent buys energy over [x402](https://github.com/x402-foundation/x402),
-settled non-custodially on **Sui**, and the charging station only delivers power
-once the payment clears on-chain.
+in the loop. The car authorizes a spending ceiling, the charger meters the kWh and
+settles the **actual** over [x402](https://github.com/x402-foundation/x402), and
+power only flows once the payment clears on-chain. The charging network's own
+billing record (an [OCPI](https://evroaming.org/ocpi-background/) CDR — the
+standard real charging networks speak) is bound into a settlement receipt anyone
+can independently verify.
 
 This is machine-to-machine commerce with a physical payload: a real payment rail
 authorizing a real-world action.
+
+**Settles on two rails, non-custodially:**
+- **Solana** — the chain the DePIN charging networks (DeCharge, Starpower) run on.
+  Proven end-to-end on **Solana devnet** with a real on-chain settlement → [jump](#solana-settlement-the-depin-networks-chain). Production settles **USDC (SPL)**
+  via an x402 SVM facilitator, riding the usage-metered **`upto`** scheme being
+  [standardized with the Solana Foundation](https://github.com/solana-foundation/x402/pull/2).
+- **Sui** — the origin rail, **mainnet-proven** with real funds through a live
+  non-custodial facilitator (zero-fee, Enoki-sponsored gas).
+
+> **For a DePIN charging network:** this is x402-on-Solana with a physical payload —
+> meter-to-settlement over the standard your stack already speaks (OCPI), the actual
+> kWh settled on-chain, no custody, and a receipt that binds *your* CDR. A drop-in
+> metered-payments rail for a charging pilot. `npm run demo:solana` runs it cold.
 
 ```
 ┌────────────┐  GET /session                    ┌─────────────────┐
