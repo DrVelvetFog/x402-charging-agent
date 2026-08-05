@@ -1,28 +1,48 @@
 # x402 EV Charging Agent
 
-An electric vehicle that **pays for its own charge** — autonomously, with no human
-in the loop. The car authorizes a spending ceiling, the charger meters the kWh and
-settles the **actual** over [x402](https://github.com/x402-foundation/x402), and
-power only flows once the payment clears on-chain. The charging network's own
-billing record (an [OCPI](https://evroaming.org/ocpi-background/) CDR — the
-standard real charging networks speak) is bound into a settlement receipt anyone
-can independently verify.
+**An electric vehicle that pays for its own charge — no human in the loop.**
+Authorize a ceiling, meter the kWh, settle the *actual* on-chain, and only then
+let power flow.
 
-This is machine-to-machine commerce with a physical payload: a real payment rail
-authorizing a real-world action.
+```bash
+npm install
+npm run demo
+```
 
-**Settles on two rails, non-custodially:**
-- **Solana** — the chain the DePIN charging networks (DeCharge, Starpower) run on.
-  Proven end-to-end on **Solana devnet** with a real on-chain settlement → [jump](#solana-settlement-the-depin-networks-chain). Production settles **USDC (SPL)**
-  via an x402 SVM facilitator, riding the usage-metered **`upto`** scheme being
-  [standardized with the Solana Foundation](https://github.com/solana-foundation/x402/pull/2).
-- **Sui** — the origin rail, **mainnet-proven** with real funds through a live
-  non-custodial facilitator (zero-fee, Enoki-sponsored gas).
+Runs cold in about a minute. Settles **0.001 SUI on testnet** through a live
+non-custodial facilitator and prints the whole arc —
+`402 → approve → sign → settle → charge_start → battery fills → complete → on-chain recompute`.
+A fresh wallet auto-faucets its gas; drop a funded key at `.secrets/car.key` to
+skip the faucet. `npm run demo:solana` runs the Solana path instead.
+
+**Proven on two rails, non-custodially:**
+
+| Rail | Status | Notes |
+|---|---|---|
+| **Sui** | **mainnet-proven with real funds** | live zero-fee facilitator, Enoki-sponsored gas |
+| **Solana** | end-to-end on **devnet**, real on-chain settlement | the chain DePIN charging networks run on → [details](#solana-settlement-the-depin-networks-chain) |
+
+Production on Solana settles **USDC (SPL)** through an x402 SVM facilitator on the
+usage-metered [`upto` scheme being standardized with the Solana Foundation](https://github.com/solana-foundation/x402/pull/2).
 
 > **For a DePIN charging network:** this is x402-on-Solana with a physical payload —
 > meter-to-settlement over the standard your stack already speaks (OCPI), the actual
 > kWh settled on-chain, no custody, and a receipt that binds *your* CDR. A drop-in
 > metered-payments rail for a charging pilot. `npm run demo:solana` runs it cold.
+
+---
+
+## What it actually does
+
+The car authorizes a spending ceiling, the charger meters the kWh and settles the
+**actual** over [x402](https://github.com/x402-foundation/x402), and power only
+flows once the payment clears on-chain. The charging network's own billing record
+(an [OCPI](https://evroaming.org/ocpi-background/) CDR — the standard real
+charging networks speak) is bound into a settlement receipt anyone can
+independently verify.
+
+Machine-to-machine commerce with a physical payload: a real payment rail
+authorizing a real-world action.
 
 ```
 ┌────────────┐  GET /session                    ┌─────────────────┐
@@ -44,17 +64,7 @@ authorizing a real-world action.
                                                    swap for a real car)
 ```
 
-## Run it
-
-```bash
-npm install
-npm run demo
-```
-
-Turnkey: settles **0.001 SUI** on testnet through the live facilitator, mocks the
-car, and prints the full arc — `402 → approve → sign → settle → charge_start →
-battery fills → complete → on-chain recompute`. A fresh wallet auto-faucets gas;
-drop a funded key at `.secrets/car.key` to skip the faucet.
+## Demo options
 
 ```bash
 ASSET=USDC npm run demo          # pay in testnet USDC instead of SUI
