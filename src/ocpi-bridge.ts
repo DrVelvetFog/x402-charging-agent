@@ -15,7 +15,7 @@
  *   POST /session/settle  PAYMENT-SIGNATURE  settle the CDR's actual on-chain
  */
 import http from "node:http";
-import { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
+import type { ChargeClient } from "./lib.js";
 import { Ed25519Keypair, Ed25519PublicKey } from "@mysten/sui/keypairs/ed25519";
 import { fromBase64, toBase64 } from "@mysten/sui/utils";
 import { Requirements, SignedPayment, buildPayment, encodeHeader, decodeHeader, short } from "./lib.js";
@@ -173,7 +173,7 @@ export async function startOcpiCharger(cfg: OcpiBridgeConfig): Promise<{ url: st
 // ----------------------------------------------------------------- agent -----
 export async function runOcpiAgent(
   chargerUrl: string,
-  client: SuiJsonRpcClient,
+  client: ChargeClient,
   car: Ed25519Keypair,
   budgetAtomic: bigint,
   onStep: (msg: string) => void = () => {},

@@ -7,7 +7,7 @@
  * polls the vehicle until charging completes. This is what an autonomous vehicle
  * does to buy energy with no human in the loop.
  */
-import { SuiJsonRpcClient } from "@mysten/sui/jsonRpc";
+import type { ChargeClient } from "./lib.js";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { Requirements, buildPayment, encodeHeader, decodeHeader, short } from "./lib.js";
 
@@ -23,7 +23,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 /** Pay for and start a charge session. Returns once the car is charging. */
 export async function buyCharge(
   chargerUrl: string,
-  client: SuiJsonRpcClient,
+  client: ChargeClient,
   payer: Ed25519Keypair,
   budgetAtomic: bigint,
   onStep: (msg: string) => void = () => {},
