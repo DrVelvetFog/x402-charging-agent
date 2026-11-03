@@ -28,12 +28,12 @@ async function main() {
   console.log(`\n  x402 EV charging agent · Solana devnet settle\n  rpc ${SOLANA_RPC}\n`);
 
   const c = conn();
-  const car = loadSolanaKeypair("solana-car");
-  const station = loadSolanaKeypair("solana-station");
+  const car = await loadSolanaKeypair("solana-car");
+  const station = await loadSolanaKeypair("solana-station");
   line("car", `solana wallet ${car.publicKey.toBase58()}`);
   line("→", "requesting devnet airdrop…");
   await ensureSol(c, car.publicKey);
-  line("①", `car funded (${(await c.getBalance(car.publicKey)) / 1e9} SOL)`);
+  line("①", `car funded (${Number(await c.getBalance(car.publicKey)) / 1e9} SOL)`);
 
   // OCPI charging network meters the energy (same CDR source as the Sui bridge)
   const cpo = await startOcpiCpo({ targetKwh: TARGET_KWH, ratePerSec: 3 });

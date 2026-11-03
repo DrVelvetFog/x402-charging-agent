@@ -26,18 +26,18 @@ export const conn = () => new Connection(SOLANA_RPC, "confirmed");
 const secretsDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", ".secrets");
 
 /** Load (or create) a persisted Solana keypair under .secrets/ (gitignored). */
-export function loadSolanaKeypair(name: string): Keypair {
+export async function loadSolanaKeypair(name: string): Promise<Keypair> {
   const file = path.join(secretsDir, `${name}.key`);
   if (fs.existsSync(file)) return Keypair.fromSecretKey(Buffer.from(fs.readFileSync(file, "utf8").trim(), "base64"));
   fs.mkdirSync(secretsDir, { recursive: true });
-  const kp = Keypair.generate();
+  const kp = await Keypair.generate();
   fs.writeFileSync(file, Buffer.from(kp.secretKey).toString("base64"), { mode: 0o600 });
   return kp;
 }
 
 /** Best-effort devnet airdrop so the payer has lamports to spend + pay fees. */
 export async function ensureSol(c: Connection, pubkey: PublicKey, minLamports = 20_000_000): Promise<number> {
-  let bal = await c.getBalance(pubkey);
+  let bal = Number(await c.getBalance(pubkey));
   for (let i = 0; i < 4 && bal < minLamports; i++) {
     try {
       const sig = await c.requestAirdrop(pubkey, 100_000_000); // 0.1 SOL
@@ -46,7 +46,7 @@ export async function ensureSol(c: Connection, pubkey: PublicKey, minLamports = 
     } catch {
       await new Promise((r) => setTimeout(r, 2000));
     }
-    bal = await c.getBalance(pubkey);
+    bal = Number(await c.getBalance(pubkey));
   }
   if (bal < minLamports) throw new Error(`devnet airdrop failed for ${pubkey.toBase58()} (have ${bal} lamports) — retry later or fund manually`);
   return bal;
